@@ -1,27 +1,46 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:peliculas/model/models.dart';
 
 class MovieSlider extends StatelessWidget {
+  final List<Movie> movies;
+  final String? title;
+
+  const MovieSlider({Key? key, required this.movies, this.title})
+      : super(key: key);
+
   @override
   Widget build(BuildContext context) {
+    final size = MediaQuery.of(context).size;
+
+    if (this.movies.length == 0) {
+      return Container(
+        width: double.infinity,
+        height: size.height * 0.5,
+        child: Center(child: CircularProgressIndicator()),
+      );
+    }
+
     return Container(
       width: double.infinity,
       height: 260,
       child: Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-        const Padding(
-            padding: EdgeInsets.symmetric(horizontal: 20),
-            child: Text(
-              "Populares",
-              style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-            )),
-        SizedBox(
+        if (title != null)
+          Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 20),
+              child: Text(
+                title!,
+                style:
+                    const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+              )),
+        const SizedBox(
           height: 5,
         ),
         Expanded(
           child: ListView.builder(
               scrollDirection: Axis.horizontal,
-              itemCount: 20,
-              itemBuilder: (_, int index) => const _MoviePoster()),
+              itemCount: movies.length,
+              itemBuilder: (_, int index) => _MoviePoster(movies[index])),
         )
       ]),
     );
@@ -29,7 +48,9 @@ class MovieSlider extends StatelessWidget {
 }
 
 class _MoviePoster extends StatelessWidget {
-  const _MoviePoster({Key? key}) : super(key: key);
+  final Movie movie;
+
+  const _MoviePoster(this.movie);
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +66,7 @@ class _MoviePoster extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
             child: FadeInImage(
               placeholder: AssetImage('assets/no-image.jpg'),
-              image: NetworkImage('https://via.placeholder.com/300x400'),
+              image: NetworkImage(movie.fullPosterImgPath),
               width: 130,
               height: 190,
               fit: BoxFit.cover,
@@ -56,7 +77,7 @@ class _MoviePoster extends StatelessWidget {
           height: 5,
         ),
         Text(
-          'Starwars: El retorno del nuevo Jedi',
+          movie.title,
           maxLines: 2,
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.center,
