@@ -8,11 +8,11 @@ class MoviesProvider extends ChangeNotifier {
   final String _apiKey = "b9cdeee918703310aaab4595ea754ac8";
   final String _baseUrl = "api.themoviedb.org";
   final String _language = "es-ES";
-
   int _popularPage = 0;
 
   List<Movie> moviesNowPlaying = [];
   List<Movie> moviesPopular = [];
+  Map<int, List<Cast>> moviesCast = {};
 
   MoviesProvider() {
     print("movies service");
@@ -41,5 +41,13 @@ class MoviesProvider extends ChangeNotifier {
         await _getJsonData('/3/movie/now_playing', _popularPage));
     moviesPopular = [...moviesPopular, ...popularResponse.results];
     notifyListeners();
+  }
+
+  Future<List<Cast>> getMovieCast(int movieId) async {
+    if (moviesCast.containsKey(movieId)) return moviesCast[movieId]!;
+    final creditsResponse = CreditsResponse.fromJson(
+        await _getJsonData('/3/movie/$movieId/credits'));
+    moviesCast[movieId] = creditsResponse.cast;
+    return creditsResponse.cast;
   }
 }
